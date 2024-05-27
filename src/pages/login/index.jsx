@@ -23,11 +23,11 @@ const LoginPage = () => {
       });
       Cookies.set(TOKEN, res.data.token);
       Cookies.set(ROLE, res.data.role);
+      Cookies.set("work_controller_id", res.data.id);
       setIsAuthenticated(true);
-      message.success("Login successful!");
-      console.log(res);
+      message.success("Siz muvafaqiyatli kirdingiz!");
     } catch (error) {
-      message.error("Username or Password is incorrect");
+      message.error("Foydalanuvchi ismi yoki Parol xato!");
       console.error(error);
     } finally {
       setIsLoading(false);

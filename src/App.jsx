@@ -6,6 +6,7 @@ import { AuthContext } from "./context/AuthContext";
 import Cookies from "js-cookie";
 import { ROLE } from "./constant";
 import OwnerDashboard from "./pages/owner";
+import WorkControllerDashboard from "./pages/work-controller";
 
 const App = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -32,6 +33,32 @@ const App = () => {
                 element={
                   isAuthenticated ? (
                     <OwnerDashboard />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+            </>
+          ) : (
+            ""
+          )}
+          {isAuthenticated ? (
+            <>
+              <Route
+                path="/"
+                element={
+                  isAuthenticated ? (
+                    <Navigate to="/work-controller-dashboard" replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/work-controller-dashboard"
+                element={
+                  isAuthenticated ? (
+                    <WorkControllerDashboard />
                   ) : (
                     <Navigate to="/login" replace />
                   )

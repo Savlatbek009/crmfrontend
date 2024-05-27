@@ -1,4 +1,4 @@
-.owner {
+.wc {
   &_header {
     background: url("/common/banner.png"), no-repeat;
     background-size: cover;
@@ -11,6 +11,9 @@
       object-fit: cover;
       margin-top: 100px;
       border-radius: 50%;
+    }
+    h1 {
+      font-size: 32px;
     }
   }
   &_work_controllers {
@@ -65,66 +68,6 @@
         }
         &::placeholder {
           color: #000;
-        }
-      }
-    }
-  }
-  &_work_controllers_row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    margin: 20px 0;
-    gap: 10px;
-    @media (max-width: 1100px) {
-      display: block;
-      text-align: center;
-    }
-    &_card {
-      text-decoration: none;
-      color: #000;
-      width: 100%;
-      cursor: pointer;
-      border: 2px solid #000;
-      border-radius: 4px;
-      @media (max-width: 1100px) {
-        border-radius: 4px !important;
-        background: #000 !important;
-        border: 0px;
-        color: #fff !important;
-      }
-      &_header {
-        background: #000;
-        height: 80px;
-        @media (max-width: 1100px) {
-          height: auto !important;
-        }
-        img {
-          width: 100px;
-          height: 100px;
-          object-fit: cover;
-          border-radius: 50%;
-          margin-top: 20px;
-          border: 2px solid #000;
-          margin-left: 20px;
-        }
-      }
-      &_body {
-        padding: 20px;
-        @media (max-width: 1100px) {
-          background: #000;
-        }
-        h1 {
-          margin: 0 !important;
-          text-transform: uppercase !important;
-        }
-        p {
-          text-transform: lowercase;
-          opacity: 0.7;
-        }
-        button {
-          margin-top: 10px;
-          &:last-child {
-            margin-left: 10px !important;
-          }
         }
       }
     }
