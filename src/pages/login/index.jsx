@@ -13,7 +13,7 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { setIsAuthenticated } = useContext(AuthContext);
 
-  const handleLogin = async (e) => {
+  const handleLogin = async () => {
     setIsLoading(true);
 
     try {
