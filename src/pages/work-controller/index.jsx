@@ -24,7 +24,7 @@ const WorkControllerDashboard = () => {
   const logout = () => {
     setIsAuthenticated(false);
     Cookies.remove(TOKEN);
-    window.location.href = "/login";
+    window.location.href = "/";
   };
 
   const getData = async () => {
