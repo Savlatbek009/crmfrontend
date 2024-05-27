@@ -24,8 +24,8 @@ const LoginPage = () => {
       Cookies.set(TOKEN, res.data.token);
       Cookies.set(ROLE, res.data.role);
       Cookies.set("work_controller_id", res.data.id);
-      setIsAuthenticated(true);
       message.success("Siz muvafaqiyatli kirdingiz!");
+      setIsAuthenticated(true);
     } catch (error) {
       message.error("Foydalanuvchi ismi yoki Parol xato!");
       console.error(error);

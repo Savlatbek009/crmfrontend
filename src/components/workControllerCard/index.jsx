@@ -2,18 +2,11 @@ import { Button } from "antd";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 
-const WorkControllerCard = ({ data, onDelete }) => {
+const WorkControllerCard = ({ data, onDelete, onEdit }) => {
   console.log(data);
   return (
     <>
-      {" "}
-      <Link
-        onClick={() => {
-          Cookies.set("work_controller_id", data.id);
-        }}
-        to={"/work-controller-dashboard"}
-        className="owner_work_controllers_row_card"
-      >
+      <div className="owner_work_controllers_row_card">
         <div className="owner_work_controllers_row_card_header">
           <img src="/work-controller/wc.png" alt="" />
         </div>
@@ -24,14 +17,29 @@ const WorkControllerCard = ({ data, onDelete }) => {
           </h1>
           <p>Ish Boshqaruvchi</p>
           <div className="owner_work_controllers_row_card_body_buttons">
-            <Button type="primary">{`O'zgartirish`}</Button>
+            <Button
+              onClick={() => onEdit(data.id)}
+              type="primary"
+            >{`O'zgartirish`}</Button>
             <Button
               onClick={() => onDelete(data.id)}
               danger
             >{`O'chirish`}</Button>
           </div>
         </div>
-      </Link>
+        <center>
+          <Link
+            onClick={() => {
+              Cookies.set("work_controller_id", data.id);
+            }}
+            to={"/work-controller-dashboard"}
+          >
+            <Button type="primary" style={{ width: "100%" }}>
+              Kirish
+            </Button>
+          </Link>
+        </center>
+      </div>
       <br className="spacing_in_bottom" />
     </>
   );

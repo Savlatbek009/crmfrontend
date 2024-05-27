@@ -1,19 +1,20 @@
+import WorkControllerCard from "../../components/workControllerCard";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { TOKEN } from "../../constant";
 import Cookies from "js-cookie";
 import { request } from "../../server";
 import { Button, Form, Input, Modal, message } from "antd";
-import WorkControllerCard from "../../components/workControllerCard";
+import { BiLogOut } from "react-icons/bi";
 
 import "./style.scss";
-import { BiLogOut } from "react-icons/bi";
 
 const OwnerDashboard = () => {
   const { setIsAuthenticated } = useContext(AuthContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -23,17 +24,20 @@ const OwnerDashboard = () => {
 
   const getData = async () => {
     try {
+      setLoading(true);
       const response = await request.get("/auth/get-all-admins");
       setData(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     getData();
   }, []);
+
   const closeModal = () => {
     setIsModalOpen(false);
     form.resetFields();
@@ -56,6 +60,7 @@ const OwnerDashboard = () => {
 
   const handleOk = async () => {
     try {
+      setLoading(true);
       let values = await form.validateFields();
       let user = {
         firstName: values.FirstName,
@@ -83,6 +88,8 @@ const OwnerDashboard = () => {
       } else {
         console.error("Error:", error.message);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -97,23 +104,23 @@ const OwnerDashboard = () => {
     }
   };
 
-  // const editController = async (id) => {
-  //   try {
-  //     const response = await request.get(`/auth/get-by-id-admin/${id}`);
-  //     const controller = response.data;
-  //     setSelected(controller);
-  //     form.setFieldsValue({
-  //       FirstName: controller.firstname,
-  //       LastName: controller.lastName,
-  //       username: controller.userName,
-  //       password: "",
-  //     });
-  //     openModal();
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //     message.error("Error fetching data");
-  //   }
-  // };
+  const editController = async (id) => {
+    try {
+      const response = await request.get(`/auth/get-by-id-admin/${id}`);
+      const controller = response.data;
+      setSelected(controller);
+      form.setFieldsValue({
+        FirstName: controller.firstname,
+        LastName: controller.lastName,
+        username: controller.userName,
+        password: "",
+      });
+      openModal();
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      message.error("Error fetching data");
+    }
+  };
 
   return (
     <>
@@ -210,13 +217,16 @@ const OwnerDashboard = () => {
               <button onClick={openModal}>{`Qo'shish`}</button>
             </div>
             <div className="owner_work_controllers_row">
-              {data.map((element) => (
-                <WorkControllerCard
-                  onDelete={deleteController}
-                  key={element.id}
-                  data={element}
-                />
-              ))}
+              {loading
+                ? "loading..."
+                : data.map((element) => (
+                    <WorkControllerCard
+                      onDelete={deleteController}
+                      onEdit={editController}
+                      key={element.id}
+                      data={element}
+                    />
+                  ))}
             </div>
           </div>
         </div>
