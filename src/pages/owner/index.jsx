@@ -10,7 +10,7 @@ import { BiLogOut } from "react-icons/bi";
 import "./style.scss";
 
 const OwnerDashboard = () => {
-  const { setIsAuthenticated } = useContext(AuthContext);
+  const { setIsAuthenticated, isAuthenticated } = useContext(AuthContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
   const [data, setData] = useState([]);
@@ -35,8 +35,20 @@ const OwnerDashboard = () => {
   };
 
   useEffect(() => {
+    const getData = async () => {
+      try {
+        setLoading(true);
+        const response = await request.get("/auth/get-all-admins");
+        setData(response.data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     getData();
-  }, []);
+  }, [isAuthenticated]);
 
   const closeModal = () => {
     setIsModalOpen(false);

@@ -6,12 +6,15 @@ import { ROLE, TOKEN } from "../../constant";
 import { AuthContext } from "../../context/AuthContext";
 
 import "./style.scss";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { setIsAuthenticated } = useContext(AuthContext);
+
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -26,6 +29,7 @@ const LoginPage = () => {
       Cookies.set("work_controller_id", res.data.id);
       message.success("Siz muvafaqiyatli kirdingiz!");
       setIsAuthenticated(true);
+      navigate(0);
     } catch (error) {
       message.error("Foydalanuvchi ismi yoki Parol xato!");
       console.error(error);
