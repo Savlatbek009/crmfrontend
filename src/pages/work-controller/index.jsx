@@ -287,15 +287,24 @@ const WorkControllerDashboard = () => {
                           }}
                         >
                           <b>Pul berilishi kerak:</b>{" "}
-                          {(
-                            Math.floor(
-                              (new Date().getTime() -
-                                new Date(worker.startTime).getTime()) /
-                                (1000 * 60 * 60 * 24)
-                            ) *
-                              worker.salaryDaily -
-                            worker.earnedMoney
-                          ).toLocaleString()}
+                          {Math.floor(
+                            (new Date().getTime() -
+                              new Date(worker.startTime).getTime()) /
+                              (1000 * 60 * 60 * 24)
+                          ) *
+                            worker.salaryDaily -
+                            worker.earnedMoney >
+                          0
+                            ? (
+                                Math.floor(
+                                  (new Date().getTime() -
+                                    new Date(worker.startTime).getTime()) /
+                                    (1000 * 60 * 60 * 24)
+                                ) *
+                                  worker.salaryDaily -
+                                worker.earnedMoney
+                              ).toLocaleString()
+                            : "0"}
                           {`so'm`}
                         </p>
                         <p
@@ -339,7 +348,10 @@ const WorkControllerDashboard = () => {
                             Pul berish
                           </Button>
 
-                          <Button onClick={() => stopCareer(worker.id)} danger>
+                          <Button
+                            onClick={() => stopCareer(e, worker.id)}
+                            danger
+                          >
                             {`To'xtatish`}
                           </Button>
                         </p>
