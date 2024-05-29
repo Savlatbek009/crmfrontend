@@ -85,9 +85,32 @@ const WorkControllerDashboard = () => {
     }
   };
 
+  const giveMoney = async (id) => {
+    const moneyAnmount = prompt("Summani kiriting");
+    const userId = Cookies.get("work_controller_id");
+    try {
+      const res = await request.patch("worker/give-money", {
+        workerId: id,
+        userId: userId,
+        earnedMoney: moneyAnmount,
+      });
+      getData();
+      console.log(res);
+    } catch (err) {
+      message.error("Sizda mablag' yetarli emas");
+    }
+  };
+
   const stopCareer = async (id) => {
-    const work_controller_id = Cookies.get("work_controller_id");
-    console.log(id, work_controller_id);
+    try {
+      const res = await request.patch("worker/endtime", {
+        id,
+        endTime: new Date().toISOString().slice(0, 10),
+      });
+      getData();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -240,7 +263,7 @@ const WorkControllerDashboard = () => {
                           <b>Ish Tarixi:</b> {worker.startTime.slice(0, 10)} -
                           {worker.endTime.startsWith("000")
                             ? " Hozirgacha"
-                            : " 20.04.2024"}
+                            : worker.endTime}
                         </p>
                         <p
                           style={{
@@ -281,7 +304,18 @@ const WorkControllerDashboard = () => {
                             color: "red",
                           }}
                         >
-                          <b>Qarzimiz:</b>
+                          <b>
+                            {Math.floor(
+                              (new Date().getTime() -
+                                new Date(worker.startTime).getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            ) *
+                              worker.salaryDaily -
+                              worker.earnedMoney >
+                            0
+                              ? "Biz Qarzmiz"
+                              : "Bizdan qarz"}
+                          </b>
                           {Math.floor(
                             (new Date().getTime() -
                               new Date(worker.startTime).getTime()) /
@@ -293,7 +327,12 @@ const WorkControllerDashboard = () => {
                         </p>
                         <br />
                         <p>
-                          <Button type="primary">Pul berish</Button>
+                          <Button
+                            onClick={() => giveMoney(worker.id)}
+                            type="primary"
+                          >
+                            Pul berish
+                          </Button>
 
                           <Button onClick={() => stopCareer(worker.id)} danger>
                             {`To'xtatish`}
