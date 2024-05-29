@@ -349,7 +349,7 @@ const WorkControllerDashboard = () => {
                           </Button>
 
                           <Button
-                            onClick={() => stopCareer(e, worker.id)}
+                            onClick={() => stopCareer(worker.id)}
                             danger
                           >
                             {`To'xtatish`}
