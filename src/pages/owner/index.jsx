@@ -104,6 +104,22 @@ const OwnerDashboard = () => {
     }
   };
 
+  const deleteController = async (id) => {
+    const canIDelete = confirm("O'chirishga ishongching komilmi?");
+    if (canIDelete) {
+      try {
+        await request.delete(`/auth/delete-account/${id}`);
+        getData();
+        message.success(`O'chirildi`);
+      } catch (error) {
+        console.error("Error deleting data:", error);
+        message.error("Error deleting data");
+      }
+    } else {
+      message.error("O'chirish bekor qilindi");
+    }
+  };
+
   const editController = async (id) => {
     try {
       const response = await request.get(`/auth/get-by-id-admin/${id}`);
@@ -235,6 +251,7 @@ const OwnerDashboard = () => {
                 ? "loading..."
                 : data.map((element) => (
                     <WorkControllerCard
+                      onDelete={deleteController}
                       onEdit={editController}
                       onMoney={giveMoney}
                       key={element.id}

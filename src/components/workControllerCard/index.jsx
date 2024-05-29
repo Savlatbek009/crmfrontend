@@ -2,7 +2,7 @@ import { Button } from "antd";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 
-const WorkControllerCard = ({ data, onEdit, onMoney }) => {
+const WorkControllerCard = ({ data, onDelete, onEdit, onMoney }) => {
   console.log(data);
   return (
     <>
@@ -18,14 +18,23 @@ const WorkControllerCard = ({ data, onEdit, onMoney }) => {
           <p>Ish Boshqaruvchi</p>
           <p>Hisobi: {data.balance}so'm</p>
           <div className="owner_work_controllers_row_card_body_buttons">
-            <Button
-              onClick={() => onEdit(data.id)}
-              type="primary"
-            >{`O'zgartirish`}</Button>
-            <Button
-              onClick={() => onMoney(data.id)}
-              danger
-            >{`Pul berish`}</Button>
+            <center>
+              <Button
+                onClick={() => onEdit(data.id)}
+                type="primary"
+              >{`O'zgartirish`}</Button>
+
+              <Button
+                onClick={() => onMoney(data.id)}
+                danger
+              >{`Pul berish`}</Button>
+            </center>
+            <center>
+              <Button
+                onClick={() => onDelete(data.id)}
+                danger
+              >{`O'chirish`}</Button>
+            </center>
           </div>
         </div>
         <center>

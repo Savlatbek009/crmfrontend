@@ -24,3 +24,13 @@
   justify-content: space-between;
   align-items: center;
 }
+
+@media (max-width: 850px) {
+  .accordion__button {
+    * {
+      text-align: start;
+      font-size: 14px !important;
+      font-weight: 400 !important;
+    }
+  }
+}
