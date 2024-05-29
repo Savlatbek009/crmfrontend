@@ -103,7 +103,7 @@ const WorkControllerDashboard = () => {
 
   const stopCareer = async (id) => {
     try {
-      const res = await request.patch("worker/endtime", {
+      await request.patch("worker/endtime", {
         id,
         endTime: new Date().toISOString().slice(0, 10),
       });
@@ -274,7 +274,8 @@ const WorkControllerDashboard = () => {
                             color: worker.earnedMoney ? "green" : "red",
                           }}
                         >
-                          <b>Pul berilgan:</b> {worker.earnedMoney}
+                          <b>Pul berilgan:</b>{" "}
+                          {worker.earnedMoney.toLocaleString()}
                           {`so'm`}
                         </p>
                         <p
@@ -286,13 +287,15 @@ const WorkControllerDashboard = () => {
                           }}
                         >
                           <b>Pul berilishi kerak:</b>{" "}
-                          {Math.floor(
-                            (new Date().getTime() -
-                              new Date(worker.startTime).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                          ) *
-                            worker.salaryDaily -
-                            worker.earnedMoney}
+                          {(
+                            Math.floor(
+                              (new Date().getTime() -
+                                new Date(worker.startTime).getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            ) *
+                              worker.salaryDaily -
+                            worker.earnedMoney
+                          ).toLocaleString()}
                           {`so'm`}
                         </p>
                         <p
@@ -309,20 +312,22 @@ const WorkControllerDashboard = () => {
                               (new Date().getTime() -
                                 new Date(worker.startTime).getTime()) /
                                 (1000 * 60 * 60 * 24)
-                            ) *
+                            ).toLocaleString() *
                               worker.salaryDaily -
                               worker.earnedMoney >
                             0
                               ? "Biz Qarzmiz"
                               : "Bizdan qarz"}
                           </b>
-                          {Math.floor(
-                            (new Date().getTime() -
-                              new Date(worker.startTime).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                          ) *
-                            worker.salaryDaily -
-                            worker.earnedMoney}
+                          {(
+                            Math.floor(
+                              (new Date().getTime() -
+                                new Date(worker.startTime).getTime()) /
+                                (1000 * 60 * 60 * 24)
+                            ) *
+                              worker.salaryDaily -
+                            worker.earnedMoney
+                          ).toLocaleString()}
                           {`so'm`}
                         </p>
                         <br />
@@ -349,7 +354,7 @@ const WorkControllerDashboard = () => {
         <br />
         <center>
           <h1>
-            Balance: {data.balance}
+            Mablag`: {Number(data.balance).toLocaleString()}
             {`so'm`}
           </h1>
         </center>
@@ -362,7 +367,6 @@ const WorkControllerDashboard = () => {
             Chiqish <BiLogOut />
           </Button>
         </center>
-        <center></center>
         <br />
       </section>
     </>
