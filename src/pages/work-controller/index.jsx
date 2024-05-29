@@ -4,7 +4,7 @@ import { TOKEN } from "../../constant";
 import Cookies from "js-cookie";
 import { request } from "../../server";
 import { Button, Form, Input, Modal, message } from "antd";
-import { BiLogOut, BiLogoAirbnb } from "react-icons/bi";
+import { BiLogOut } from "react-icons/bi";
 
 import "./style.scss";
 import {
@@ -20,8 +20,6 @@ const WorkControllerDashboard = () => {
   const [data, setData] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isModalOpenMoney, setIsModalOpenMoney] = useState(false);
-  const [moneyInput, setMoneyInput] = useState(0);
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -56,31 +54,6 @@ const WorkControllerDashboard = () => {
   const openModal = () => {
     setIsModalOpen(true);
   };
-
-  const openModalMoney = async (id) => {
-    setIsModalOpenMoney(true);
-    const res = await request.put("worker/update", {
-      id,
-      earnedMoney: moneyInput,
-    });
-    console.log(res);
-    // try {
-    //   await request.post("worker/create", user);
-    //   message.success(`Qo'shildi`);
-    //   form.resetFields();
-    //   getData();
-    //   closeModal();
-    // } catch (error) {
-    //   if (error.response) {
-    //     console.error("Server Error:", error.response.data);
-    //   } else if (error.request) {
-    //     console.error("Network Error:", error.request);
-    //   } else {
-    //     console.error("Error:", error.message);
-    //   }
-    // }
-  };
-
   const handleOk = async () => {
     const work_controller_id = Cookies.get("work_controller_id");
 
@@ -115,27 +88,6 @@ const WorkControllerDashboard = () => {
   const stopCareer = async (id) => {
     const work_controller_id = Cookies.get("work_controller_id");
     console.log(id, work_controller_id);
-    const formattedDate = new Date().toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-    const readyDate = formattedDate.split("/").reverse().join("-");
-    const res1 = await request.get("/worker/get-all");
-    console.log(res1);
-    const res = await request.put("/worker/update", {
-      id,
-      userId: work_controller_id,
-      endTime: readyDate + "T00:00:00",
-      firstName: "Savlatbek",
-      lastName: "Abdullayev",
-      position: "yuk tashuvchi",
-      salaryDaily: 100000,
-      earnedMoney: 0,
-      workPlace: "Sxf",
-      startTime: "2024-04-29T00:00:00",
-    });
-    console.log(res);
   };
 
   return (
@@ -267,9 +219,9 @@ const WorkControllerDashboard = () => {
                   <AccordionItem key={worker.id}>
                     <AccordionItemHeading>
                       <AccordionItemButton>
-                        <b>{worker.position}</b>
-                        <b>{worker.workPlace}da</b>
-                        <b>
+                        <b style={{ width: "33%" }}>{worker.position}</b>
+                        <b style={{ width: "33%" }}>{worker.workPlace}da</b>
+                        <b style={{ width: "33%" }}>
                           {worker.firstName} {worker.lastName}
                         </b>
                       </AccordionItemButton>
@@ -300,6 +252,7 @@ const WorkControllerDashboard = () => {
                           }}
                         >
                           <b>Pul berilgan:</b> {worker.earnedMoney}
+                          {`so'm`}
                         </p>
                         <p
                           style={{
@@ -317,6 +270,7 @@ const WorkControllerDashboard = () => {
                           ) *
                             worker.salaryDaily -
                             worker.earnedMoney}
+                          {`so'm`}
                         </p>
                         <p
                           style={{
@@ -335,45 +289,14 @@ const WorkControllerDashboard = () => {
                           ) *
                             worker.salaryDaily -
                             worker.earnedMoney}
+                          {`so'm`}
                         </p>
                         <br />
                         <p>
-                          {isModalOpenMoney ? (
-                            <>
-                              <br />
-                              <Input
-                                onChange={(e) => setMoneyInput(e.target.value)}
-                                style={{ width: "200px" }}
-                                value={moneyInput}
-                                type="text"
-                              />
-                              <br />
-                              <br />
-                            </>
-                          ) : (
-                            ""
-                          )}
-                          <Button
-                            onClick={() => openModalMoney(worker.id)}
-                            type="primary"
-                          >
-                            Pul berish
-                          </Button>
-                          {isModalOpenMoney ? (
-                            <>
-                              <Button
-                                onClick={() => setIsModalOpenMoney(false)}
-                                danger
-                                style={{ marginLeft: "10px" }}
-                              >
-                                Yopish
-                              </Button>
-                            </>
-                          ) : (
-                            ""
-                          )}
+                          <Button type="primary">Pul berish</Button>
+
                           <Button onClick={() => stopCareer(worker.id)} danger>
-                            To'xtatish
+                            {`To'xtatish`}
                           </Button>
                         </p>
                       </p>
@@ -386,7 +309,10 @@ const WorkControllerDashboard = () => {
         </div>
         <br />
         <center>
-          <h1>Balance: {data.balance}so'm</h1>
+          <h1>
+            Balance: {data.balance}
+            {`so'm`}
+          </h1>
         </center>
         <center>
           <Button

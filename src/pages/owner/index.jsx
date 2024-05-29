@@ -15,7 +15,6 @@ const OwnerDashboard = () => {
   const [selected, setSelected] = useState(null);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [state, setState] = useState({ id: "", balance: 0 });
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -140,17 +139,7 @@ const OwnerDashboard = () => {
   };
 
   const giveMoney = async (id) => {
-    const moneyAmount = +prompt("Pul qiymatini kiriting");
-    const { data } = await request.get(`auth/get-by-id-admin/${id}`);
-    const giveMoneyToAdmin = await request.put("auth/update-admin", {
-      id,
-      firstName: data.firstname,
-      lastName: data.lastName,
-      userName: data.userName,
-      adress: data.adress,
-      balance: moneyAmount,
-    });
-    console.log(giveMoneyToAdmin);
+    
   };
 
   return (
