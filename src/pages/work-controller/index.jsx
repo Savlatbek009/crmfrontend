@@ -3,8 +3,8 @@ import { AuthContext } from "../../context/AuthContext";
 import { TOKEN } from "../../constant";
 import Cookies from "js-cookie";
 import { request } from "../../server";
-import { Button, Form, Input, Modal } from "antd";
-import { BiLogOut } from "react-icons/bi";
+import { Button, Form, Input, Modal, message } from "antd";
+import { BiLogOut, BiLogoAirbnb } from "react-icons/bi";
 
 import "./style.scss";
 import {
@@ -18,7 +18,10 @@ import {
 const WorkControllerDashboard = () => {
   const { setIsAuthenticated } = useContext(AuthContext);
   const [data, setData] = useState([]);
+  const [workers, setWorkers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenMoney, setIsModalOpenMoney] = useState(false);
+  const [moneyInput, setMoneyInput] = useState(0);
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -34,6 +37,7 @@ const WorkControllerDashboard = () => {
         "/auth/get-by-id-admin/" + work_controller_id
       );
       setData(response.data);
+      setWorkers(response.data.workers);
       console.log(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -53,84 +57,93 @@ const WorkControllerDashboard = () => {
     setIsModalOpen(true);
   };
 
-  // async function editWorkController() {
-  //   try {
-  //     setSelected(null);
-  //     setIsModalOpen(true);
-  //     // const { data } = await getSkill(id);
-  //     // form.setFieldsValue(data);
-  //   } catch (err) {
-  //     // console.log(err);
-  //   }
-  // }
+  const openModalMoney = async (id) => {
+    setIsModalOpenMoney(true);
+    const res = await request.put("worker/update", {
+      id,
+      earnedMoney: moneyInput,
+    });
+    console.log(res);
+    // try {
+    //   await request.post("worker/create", user);
+    //   message.success(`Qo'shildi`);
+    //   form.resetFields();
+    //   getData();
+    //   closeModal();
+    // } catch (error) {
+    //   if (error.response) {
+    //     console.error("Server Error:", error.response.data);
+    //   } else if (error.request) {
+    //     console.error("Network Error:", error.request);
+    //   } else {
+    //     console.error("Error:", error.message);
+    //   }
+    // }
+  };
 
-  // const handleOk = async () => {
-  //   try {
-  //     let values = await form.validateFields();
-  //     let user = {
-  //       firstName: values.FirstName,
-  //       lastName: values.LastName,
-  //       userName: values.username,
-  //       password: values.password,
-  //     };
-  //     if (selected) {
-  //       await request.put(`/auth/update-admin/${selected.id}`, user);
-  //       message.success(`O'zgartirildi`);
-  //     } else {
-  //       await request.post("auth/register", user);
-  //       message.success(`Qo'shildi`);
-  //     }
-  //     form.resetFields();
-  //     message.success(`Qo'shildi`);
-  //     getData();
-  //     setSelected(null);
-  //     closeModal();
-  //   } catch (error) {
-  //     if (error.response) {
-  //       console.error("Server Error:", error.response.data);
-  //     } else if (error.request) {
-  //       console.error("Network Error:", error.request);
-  //     } else {
-  //       console.error("Error:", error.message);
-  //     }
-  //   }
-  // };
+  const handleOk = async () => {
+    const work_controller_id = Cookies.get("work_controller_id");
 
-  // const deleteController = async (id) => {
-  //   try {
-  //     await request.delete(`/auth/delete-account/${id}`);
-  //     getData();
-  //     message.success(`Deleted successfully`);
-  //   } catch (error) {
-  //     console.error("Error deleting data:", error);
-  //     message.error("Error deleting data");
-  //   }
-  // };
+    try {
+      let values = await form.validateFields();
+      let user = {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        position: values.position,
+        salaryDaily: values.salaryDaily,
+        workPlace: values.workPlace,
+        startTime: values.startTime,
+        userId: work_controller_id,
+      };
 
-  // const editController = async (id) => {
-  //   try {
-  //     const response = await request.get(`/auth/get-by-id-admin/${id}`);
-  //     const controller = response.data;
-  //     setSelected(controller);
-  //     form.setFieldsValue({
-  //       FirstName: controller.firstname,
-  //       LastName: controller.lastName,
-  //       username: controller.userName,
-  //       password: "",
-  //     });
-  //     openModal();
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //     message.error("Error fetching data");
-  //   }
-  // };
+      await request.post("worker/create", user);
+      message.success(`Qo'shildi`);
+      form.resetFields();
+      getData();
+      closeModal();
+    } catch (error) {
+      if (error.response) {
+        console.error("Server Error:", error.response.data);
+      } else if (error.request) {
+        console.error("Network Error:", error.request);
+      } else {
+        console.error("Error:", error.message);
+      }
+    }
+  };
+
+  const stopCareer = async (id) => {
+    const work_controller_id = Cookies.get("work_controller_id");
+    console.log(id, work_controller_id);
+    const formattedDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+    const readyDate = formattedDate.split("/").reverse().join("-");
+    const res1 = await request.get("/worker/get-all");
+    console.log(res1);
+    const res = await request.put("/worker/update", {
+      id,
+      userId: work_controller_id,
+      endTime: readyDate + "T00:00:00",
+      firstName: "Savlatbek",
+      lastName: "Abdullayev",
+      position: "yuk tashuvchi",
+      salaryDaily: 100000,
+      earnedMoney: 0,
+      workPlace: "Sxf",
+      startTime: "2024-04-29T00:00:00",
+    });
+    console.log(res);
+  };
 
   return (
     <>
       <Modal
         title={"Ishchi qo'shish"}
         open={isModalOpen}
-        // onOk={handleOk}
+        onOk={handleOk}
         onCancel={closeModal}
         okText={"Qo'shish"}
       >
@@ -150,7 +163,7 @@ const WorkControllerDashboard = () => {
         >
           <Form.Item
             label="Ism"
-            name="FirstName"
+            name="firstName"
             rules={[
               {
                 required: true,
@@ -162,7 +175,7 @@ const WorkControllerDashboard = () => {
           </Form.Item>
           <Form.Item
             label="Familiya"
-            name="LastName"
+            name="lastName"
             rules={[
               {
                 required: true,
@@ -174,7 +187,7 @@ const WorkControllerDashboard = () => {
           </Form.Item>
           <Form.Item
             label="Abyom"
-            name="obyom"
+            name="workPlace"
             rules={[
               {
                 required: true,
@@ -186,7 +199,7 @@ const WorkControllerDashboard = () => {
           </Form.Item>
           <Form.Item
             label="Vazifasi"
-            name="password"
+            name="position"
             rules={[
               {
                 required: true,
@@ -198,7 +211,7 @@ const WorkControllerDashboard = () => {
           </Form.Item>
           <Form.Item
             label="Kungi to'lanadi"
-            name="password"
+            name="salaryDaily"
             rules={[
               {
                 required: true,
@@ -210,7 +223,7 @@ const WorkControllerDashboard = () => {
           </Form.Item>
           <Form.Item
             label="Ish boshlash vaqti"
-            name="password"
+            name="startTime"
             rules={[
               {
                 required: true,
@@ -250,182 +263,131 @@ const WorkControllerDashboard = () => {
             <br />
             <div className="wc_work_controllers_row">
               <Accordion allowMultipleExpanded allowZeroExpanded>
-                <AccordionItem>
-                  <AccordionItemHeading>
-                    <AccordionItemButton>
-                      <b>{`G'isht yetkazuvchi`}</b>
-                      <b>{`Samarqand city obyetkida`}</b>
-                      <b>Abdullayev Savlatbek</b>
-                    </AccordionItemButton>
-                  </AccordionItemHeading>
-                  <AccordionItemPanel>
-                    <p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "blue",
-                        }}
-                      >
-                        <b>Ish Tarixi:</b> 20.11.2023 - 20.04.2024
+                {workers.map((worker) => (
+                  <AccordionItem key={worker.id}>
+                    <AccordionItemHeading>
+                      <AccordionItemButton>
+                        <b>{worker.position}</b>
+                        <b>{worker.workPlace}da</b>
+                        <b>
+                          {worker.firstName} {worker.lastName}
+                        </b>
+                      </AccordionItemButton>
+                    </AccordionItemHeading>
+                    <AccordionItemPanel>
+                      <p>
+                        <p
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            borderBottom: "1px solid #000",
+                            paddingTop: "5px",
+                            color: "blue",
+                          }}
+                        >
+                          <b>Ish Tarixi:</b> {worker.startTime.slice(0, 10)} -
+                          {worker.endTime.startsWith("000")
+                            ? " Hozirgacha"
+                            : " 20.04.2024"}
+                        </p>
+                        <p
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            borderBottom: "1px solid #000",
+                            paddingTop: "5px",
+                            color: worker.earnedMoney ? "green" : "red",
+                          }}
+                        >
+                          <b>Pul berilgan:</b> {worker.earnedMoney}
+                        </p>
+                        <p
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            borderBottom: "1px solid #000",
+                            paddingTop: "5px",
+                          }}
+                        >
+                          <b>Pul berilishi kerak:</b>{" "}
+                          {Math.floor(
+                            (new Date().getTime() -
+                              new Date(worker.startTime).getTime()) /
+                              (1000 * 60 * 60 * 24)
+                          ) *
+                            worker.salaryDaily -
+                            worker.earnedMoney}
+                        </p>
+                        <p
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            borderBottom: "1px solid #000",
+                            paddingTop: "5px",
+                            color: "red",
+                          }}
+                        >
+                          <b>Qarzimiz:</b>
+                          {Math.floor(
+                            (new Date().getTime() -
+                              new Date(worker.startTime).getTime()) /
+                              (1000 * 60 * 60 * 24)
+                          ) *
+                            worker.salaryDaily -
+                            worker.earnedMoney}
+                        </p>
+                        <br />
+                        <p>
+                          {isModalOpenMoney ? (
+                            <>
+                              <br />
+                              <Input
+                                onChange={(e) => setMoneyInput(e.target.value)}
+                                style={{ width: "200px" }}
+                                value={moneyInput}
+                                type="text"
+                              />
+                              <br />
+                              <br />
+                            </>
+                          ) : (
+                            ""
+                          )}
+                          <Button
+                            onClick={() => openModalMoney(worker.id)}
+                            type="primary"
+                          >
+                            Pul berish
+                          </Button>
+                          {isModalOpenMoney ? (
+                            <>
+                              <Button
+                                onClick={() => setIsModalOpenMoney(false)}
+                                danger
+                                style={{ marginLeft: "10px" }}
+                              >
+                                Yopish
+                              </Button>
+                            </>
+                          ) : (
+                            ""
+                          )}
+                          <Button onClick={() => stopCareer(worker.id)} danger>
+                            To'xtatish
+                          </Button>
+                        </p>
                       </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "green",
-                        }}
-                      >
-                        <b>Pul berilgan:</b> 9,000,000 so'm
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "red",
-                        }}
-                      >
-                        <b>Pul berilishi kerak:</b> 10,000,000 so'm
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "red",
-                        }}
-                      >
-                        <b>Qarzimiz:</b> 1,000,000 so'm
-                      </p>
-                    </p>
-                  </AccordionItemPanel>
-                </AccordionItem>
-                <AccordionItem>
-                  <AccordionItemHeading>
-                    <AccordionItemButton>
-                      <b>{`G'isht yetkazuvchi`}</b>
-                      <b>{`Samarqand city obyetkida`}</b>
-                      <b>Abdullayev Savlatbek</b>
-                    </AccordionItemButton>
-                  </AccordionItemHeading>
-                  <AccordionItemPanel>
-                    <p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "blue",
-                        }}
-                      >
-                        <b>Ish Tarixi:</b> 20.11.2023 - 20.04.2024
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "green",
-                        }}
-                      >
-                        <b>Pul berilgan:</b> 10,000,000 so'm
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "green",
-                        }}
-                      >
-                        <b>Pul berilishi kerak:</b> 10,000,000 so'm
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "green",
-                        }}
-                      >
-                        <b>Qarzimiz:</b> 0
-                      </p>
-                    </p>
-                  </AccordionItemPanel>
-                </AccordionItem>
-                <AccordionItem>
-                  <AccordionItemHeading>
-                    <AccordionItemButton>
-                      <b>{`G'isht yetkazuvchi`}</b>
-                      <b>{`Samarqand city obyetkida`}</b>
-                      <b>Abdullayev Savlatbek</b>
-                    </AccordionItemButton>
-                  </AccordionItemHeading>
-                  <AccordionItemPanel>
-                    <p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "blue",
-                        }}
-                      >
-                        <b>Ish Tarixi:</b> 20.11.2023 - Hozirgacha
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "green",
-                        }}
-                      >
-                        <b>Pul berilgan:</b> 11,000,000 so'm
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "red",
-                        }}
-                      >
-                        <b>Pul berilishi kerak:</b> 10,000,000 so'm
-                      </p>
-                      <p
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          borderBottom: "1px solid #000",
-                          paddingTop: "5px",
-                          color: "red",
-                        }}
-                      >
-                        <b>Qarzi:</b> 1,000,000 so'm
-                      </p>
-                    </p>
-                  </AccordionItemPanel>
-                </AccordionItem>
+                    </AccordionItemPanel>
+                  </AccordionItem>
+                ))}
               </Accordion>
             </div>
           </div>
         </div>
         <br />
+        <center>
+          <h1>Balance: {data.balance}so'm</h1>
+        </center>
         <center>
           <Button
             style={{ display: "flex", alignItems: "center", gap: "5px" }}
@@ -435,6 +397,7 @@ const WorkControllerDashboard = () => {
             Chiqish <BiLogOut />
           </Button>
         </center>
+        <center></center>
         <br />
       </section>
     </>

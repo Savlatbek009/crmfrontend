@@ -2,7 +2,7 @@ import { Button } from "antd";
 import { Link } from "react-router-dom";
 import Cookies from "js-cookie";
 
-const WorkControllerCard = ({ data, onDelete, onEdit }) => {
+const WorkControllerCard = ({ data, onDelete, onEdit, onMoney }) => {
   console.log(data);
   return (
     <>
@@ -25,6 +25,10 @@ const WorkControllerCard = ({ data, onDelete, onEdit }) => {
               onClick={() => onDelete(data.id)}
               danger
             >{`O'chirish`}</Button>
+            <Button
+              onClick={() => onMoney(data.id)}
+              danger
+            >{`Pul berish`}</Button>
           </div>
         </div>
         <center>

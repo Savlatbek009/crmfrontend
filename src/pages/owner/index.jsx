@@ -15,6 +15,7 @@ const OwnerDashboard = () => {
   const [selected, setSelected] = useState(null);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [state, setState] = useState({ id: "", balance: 0 });
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -88,7 +89,6 @@ const OwnerDashboard = () => {
         message.success(`Qo'shildi`);
       }
       form.resetFields();
-      message.success(`Qo'shildi`);
       getData();
       setSelected(null);
       closeModal();
@@ -137,6 +137,20 @@ const OwnerDashboard = () => {
       console.error("Error fetching data:", error);
       message.error("Error fetching data");
     }
+  };
+
+  const giveMoney = async (id) => {
+    const moneyAmount = +prompt("Pul qiymatini kiriting");
+    const { data } = await request.get(`auth/get-by-id-admin/${id}`);
+    const giveMoneyToAdmin = await request.put("auth/update-admin", {
+      id,
+      firstName: data.firstname,
+      lastName: data.lastName,
+      userName: data.userName,
+      adress: data.adress,
+      balance: moneyAmount,
+    });
+    console.log(giveMoneyToAdmin);
   };
 
   return (
@@ -240,6 +254,7 @@ const OwnerDashboard = () => {
                     <WorkControllerCard
                       onDelete={deleteController}
                       onEdit={editController}
+                      onMoney={giveMoney}
                       key={element.id}
                       data={element}
                     />
