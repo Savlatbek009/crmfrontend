@@ -348,10 +348,7 @@ const WorkControllerDashboard = () => {
                             Pul berish
                           </Button>
 
-                          <Button
-                            onClick={() => stopCareer(e, worker.id)}
-                            danger
-                          >
+                          <Button onClick={() => stopCareer(worker.id)} danger>
                             {`To'xtatish`}
                           </Button>
                         </p>

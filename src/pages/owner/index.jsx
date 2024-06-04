@@ -53,22 +53,14 @@ const OwnerDashboard = () => {
   const closeModal = () => {
     setIsModalOpen(false);
     form.resetFields();
+    setSelected(null);
+    console.log(selected);
   };
 
   const openModal = () => {
     setIsModalOpen(true);
+    console.log(selected);
   };
-
-  // async function editWorkController() {
-  //   try {
-  //     setSelected(null);
-  //     setIsModalOpen(true);
-  //     // const { data } = await getSkill(id);
-  //     // form.setFieldsValue(data);
-  //   } catch (err) {
-  //     // console.log(err);
-  //   }
-  // }
 
   const handleOk = async () => {
     try {
@@ -81,8 +73,9 @@ const OwnerDashboard = () => {
         password: values.password,
       };
       if (selected) {
-        await request.put(`/auth/update-admin/${selected.id}`, user);
+        await request.put(`/auth/update-admin`, { ...user, id: selected });
         message.success(`O'zgartirildi`);
+        console.log(user);
       } else {
         await request.post("auth/register", user);
         message.success(`Qo'shildi`);
@@ -124,7 +117,7 @@ const OwnerDashboard = () => {
     try {
       const response = await request.get(`/auth/get-by-id-admin/${id}`);
       const controller = response.data;
-      setSelected(controller);
+      setSelected(controller.id);
       form.setFieldsValue({
         FirstName: controller.firstname,
         LastName: controller.lastName,
@@ -231,11 +224,14 @@ const OwnerDashboard = () => {
       </Modal>
       <section className="owner">
         <div className="owner_header">
-          <img src="/owner/owner.png" alt="" />
-          <h1>ABDIJALIL XOLMAMATOV</h1>
-          <p>{`OOO "SAIDAZIMSHOH" firmasini asoschisi`}</p>
+          <div className="owner_header_container">
+            <img src="/owner/owner.png" alt="" />
+            <div>
+              <h1>ABDIJALIL XOLMAMATOV</h1>
+              <p>{`OOO "SAIDAZIMSHOH" firmasini asoschisi`}</p>
+            </div>
+          </div>
         </div>
-        <div style={{ height: "200px" }}></div>
         <hr style={{ marginBottom: "35px" }} />
         <div className="container">
           <div className="owner_work_controllers">

@@ -41,7 +41,18 @@ const WorkControllerCard = ({ data, onDelete, onEdit, onMoney }) => {
             }}
             to={"/work-controller-dashboard"}
           >
-            <Button type="primary" style={{ width: "100%" }}>
+            <Button
+              style={{
+                width: "100%",
+                borderRadius: "0",
+                backgroundColor: "#000",
+                color: "#fff",
+                borderColor: "#000",
+                fontSize: "19px",
+                padding: "10px",
+                height: "auto",
+              }}
+            >
               Kirish
             </Button>
           </Link>
