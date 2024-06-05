@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { TOKEN } from "../../constant";
 import Cookies from "js-cookie";
 import { request } from "../../server";
-import { Button, Form, Input, Modal, Select, message } from "antd";
+import { Button, Form, Input, Modal, message } from "antd";
 import { BiLogOut } from "react-icons/bi";
 
 import "./style.scss";
@@ -16,7 +16,6 @@ const OwnerDashboard = () => {
   const [payments, setPayments] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [filter, setFilter] = useState("Oldingisi");
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -24,9 +23,6 @@ const OwnerDashboard = () => {
     Cookies.remove(TOKEN);
   };
 
-  const handleChange = (value) => {
-    setFilter(value);
-  };
   const getData = async () => {
     try {
       setLoading(true);
