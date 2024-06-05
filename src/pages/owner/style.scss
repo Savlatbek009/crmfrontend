@@ -2,31 +2,15 @@
   &_header {
     background: url("/common/banner.png"), no-repeat;
     background-size: cover;
-    height: 220px;
-    color: #fff;
-    padding: 10px 0;
-    @media (max-width: 850px) {
-      height: auto;
-    }
-    &_container {
-      max-width: 850px;
-      margin: 0 auto;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      align-items: center;
-      @media (max-width: 850px) {
-        text-align: center;
-        width: 100%;
-        display: block;
-        color: #fff;
-      }
-      img {
-        width: 200px;
-        height: 200px;
-        object-fit: cover;
-        border-radius: 50%;
-      }
+    height: 200px;
+    text-align: center;
+    color: #000;
+    img {
+      width: 200px;
+      height: 200px;
+      object-fit: cover;
+      margin-top: 100px;
+      border-radius: 50%;
     }
   }
   &_work_controllers {

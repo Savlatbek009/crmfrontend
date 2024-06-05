@@ -375,7 +375,7 @@ const WorkControllerDashboard = () => {
                                       {payment.time.slice(0, 10)} <br />{" "}
                                       {payment.time.slice(10, 16)}
                                     </b>
-                                    <b>{payment.amount}so`m</b>
+                                    <b>{payment.amount.toLocaleString()}so`m</b>
                                   </div>
                                   <hr />
                                 </>
@@ -393,6 +393,9 @@ const WorkControllerDashboard = () => {
 
                           <Button onClick={() => stopCareer(worker.id)} danger>
                             {`To'xtatish`}
+                          </Button>
+                          <Button onClick={() => getPayments(worker.id)} danger>
+                            {`To'lovlarni ko'rish`}
                           </Button>
                         </p>
                       </p>

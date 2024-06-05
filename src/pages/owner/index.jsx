@@ -4,7 +4,7 @@ import { AuthContext } from "../../context/AuthContext";
 import { TOKEN } from "../../constant";
 import Cookies from "js-cookie";
 import { request } from "../../server";
-import { Button, Form, Input, Modal, message } from "antd";
+import { Button, Form, Input, Modal, Select, message } from "antd";
 import { BiLogOut } from "react-icons/bi";
 
 import "./style.scss";
@@ -16,6 +16,7 @@ const OwnerDashboard = () => {
   const [payments, setPayments] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState("Oldingisi");
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -23,6 +24,9 @@ const OwnerDashboard = () => {
     Cookies.remove(TOKEN);
   };
 
+  const handleChange = (value) => {
+    setFilter(value);
+  };
   const getData = async () => {
     try {
       setLoading(true);
@@ -48,7 +52,6 @@ const OwnerDashboard = () => {
         setLoading(false);
       }
     };
-
     getData();
   }, [isAuthenticated]);
 
@@ -113,6 +116,7 @@ const OwnerDashboard = () => {
     } else {
       message.error("O'chirish bekor qilindi");
     }
+    getPayments();
   };
 
   const editController = async (id) => {
@@ -148,11 +152,17 @@ const OwnerDashboard = () => {
     } catch (error) {
       console.log(error);
     }
+    getPayments();
   };
 
   const getPayments = async () => {
-    const res = await request.get("money/get-all");
-    setPayments(res.data);
+    try {
+      setLoading(true);
+      const res = await request.get("money/get-all");
+      setPayments(res.data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -242,6 +252,7 @@ const OwnerDashboard = () => {
             </div>
           </div>
         </div>
+        <div style={{ height: "200px" }}></div>
         <hr style={{ marginBottom: "35px" }} />
         <div className="container">
           <div className="owner_work_controllers">
@@ -268,33 +279,36 @@ const OwnerDashboard = () => {
             <div>
               <center>
                 <h1>Barcha o`tkazmalar</h1>
-                {payments && payments.length > 0 && (
-                  <div>
-                    <hr />
-                    {payments.map((payment) => (
-                      <>
-                        {" "}
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            textAlign: "start !important",
-                          }}
-                          key={payment.id}
-                        >
-                          <b style={{ textAlign: "start" }}>
-                            {payment.time.slice(0, 10)} <br />{" "}
-                            {payment.time.slice(10, 16)}
-                          </b>
-                          <b>{payment.amount}so`m</b>
-                        </div>
-                        <hr />
-                      </>
-                    ))}
-                  </div>
-                )}
               </center>
+              {loading
+                ? "Loading..."
+                : payments &&
+                  payments.length > 0 && (
+                    <div>
+                      <hr />
+                      {payments.map((payment) => (
+                        <>
+                          {" "}
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              textAlign: "start !important",
+                            }}
+                            key={payment.id}
+                          >
+                            <b style={{ textAlign: "start" }}>
+                              {payment.time.slice(0, 10)} <br />{" "}
+                              {payment.time.slice(10, 16)}
+                            </b>
+                            <b>{payment.amount.toLocaleString()}so`m</b>
+                          </div>
+                          <hr />
+                        </>
+                      ))}
+                    </div>
+                  )}
             </div>
           </div>
         </div>
