@@ -13,6 +13,7 @@ const OwnerDashboard = () => {
   const { setIsAuthenticated, isAuthenticated } = useContext(AuthContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [payments, setPayments] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
@@ -35,6 +36,7 @@ const OwnerDashboard = () => {
   };
 
   useEffect(() => {
+    getPayments();
     const getData = async () => {
       try {
         setLoading(true);
@@ -134,15 +136,23 @@ const OwnerDashboard = () => {
   const giveMoney = async (id) => {
     const moneyAnmount = prompt("Summani kiriting");
     try {
-      const res = await request.patch("auth/give-money", {
-        userId: id,
-        money: moneyAnmount,
-      });
+      const res = await request.post(
+        `money/give-money-to-worker-controller?userId=${id}&amount=${moneyAnmount}`,
+        {
+          userId: id,
+          amount: moneyAnmount,
+        }
+      );
       getData();
       console.log(res);
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const getPayments = async () => {
+    const res = await request.get("money/get-all");
+    setPayments(res.data);
   };
 
   return (
@@ -255,8 +265,40 @@ const OwnerDashboard = () => {
                     />
                   ))}
             </div>
+            <div>
+              <center>
+                <h1>Barcha o`tkazmalar</h1>
+                {payments && payments.length > 0 && (
+                  <div>
+                    <hr />
+                    {payments.map((payment) => (
+                      <>
+                        {" "}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            textAlign: "start !important",
+                          }}
+                          key={payment.id}
+                        >
+                          <b style={{ textAlign: "start" }}>
+                            {payment.time.slice(0, 10)} <br />{" "}
+                            {payment.time.slice(10, 16)}
+                          </b>
+                          <b>{payment.amount}so`m</b>
+                        </div>
+                        <hr />
+                      </>
+                    ))}
+                  </div>
+                )}
+              </center>
+            </div>
           </div>
         </div>
+        <br />
         <center>
           <Button
             style={{ display: "flex", alignItems: "center", gap: "5px" }}

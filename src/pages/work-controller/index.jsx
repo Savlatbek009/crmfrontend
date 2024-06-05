@@ -20,6 +20,7 @@ const WorkControllerDashboard = () => {
   const [data, setData] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [payments, setPayments] = useState(false);
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -36,9 +37,19 @@ const WorkControllerDashboard = () => {
       );
       setData(response.data);
       setWorkers(response.data.workers);
+      console.log(response.data.workers);
       console.log(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
+    }
+  };
+
+  const getPayments = async (id) => {
+    try {
+      const res = await request.get("worker/get-by-id-worker/" + id);
+      setPayments({ ...payments, [id]: res.data.transactions });
+    } catch (err) {
+      message.error("Xatolik yuz berdi");
     }
   };
 
@@ -89,15 +100,18 @@ const WorkControllerDashboard = () => {
     const moneyAnmount = prompt("Summani kiriting");
     const userId = Cookies.get("work_controller_id");
     try {
-      const res = await request.patch("worker/give-money", {
-        workerId: id,
-        userId: userId,
-        earnedMoney: moneyAnmount,
+      const res = await request.post("money/give-money-to-worker", {
+        toUserId: id,
+        fromUserId: userId,
+        amount: moneyAnmount,
       });
       getData();
+      getPayments(id);
       console.log(res);
     } catch (err) {
-      message.error("Sizda mablag' yetarli emas");
+      message.error(
+        "Sizda mablag' yetarli emas yoki ishchi faoliyatini to'xtatgan"
+      );
     }
   };
 
@@ -265,19 +279,7 @@ const WorkControllerDashboard = () => {
                             ? " Hozirgacha"
                             : worker.endTime}
                         </p>
-                        <p
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            borderBottom: "1px solid #000",
-                            paddingTop: "5px",
-                            color: worker.earnedMoney ? "green" : "red",
-                          }}
-                        >
-                          <b>Pul berilgan:</b>{" "}
-                          {worker.earnedMoney.toLocaleString()}
-                          {`so'm`}
-                        </p>
+
                         <p
                           style={{
                             display: "flex",
@@ -339,6 +341,47 @@ const WorkControllerDashboard = () => {
                           ).toLocaleString()}
                           {`so'm`}
                         </p>
+                        <p
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            borderBottom: "1px solid #000",
+                            paddingTop: "5px",
+                            color: worker.earnedMoney ? "green" : "red",
+                          }}
+                        >
+                          <b>Pul berilgan:</b>{" "}
+                          {worker.earnedMoney.toLocaleString()}
+                          {`so'm`}
+                        </p>
+                        <br />
+                        {payments[worker.id] &&
+                          payments[worker.id].length > 0 && (
+                            <div>
+                              <h3>O`tkazmalar tarixi</h3>
+                              <hr />
+                              {payments[worker.id].map((payment) => (
+                                <>
+                                  {" "}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                    }}
+                                    key={payment.id}
+                                  >
+                                    <b>
+                                      {payment.time.slice(0, 10)} <br />{" "}
+                                      {payment.time.slice(10, 16)}
+                                    </b>
+                                    <b>{payment.amount}so`m</b>
+                                  </div>
+                                  <hr />
+                                </>
+                              ))}
+                            </div>
+                          )}
                         <br />
                         <p>
                           <Button
@@ -367,6 +410,7 @@ const WorkControllerDashboard = () => {
             {`so'm`}
           </h1>
         </center>
+        <br />
         <center>
           <Button
             style={{ display: "flex", alignItems: "center", gap: "5px" }}
