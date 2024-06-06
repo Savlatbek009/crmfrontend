@@ -284,40 +284,6 @@ const OwnerDashboard = () => {
                     />
                   ))}
             </div>
-            <div>
-              <center>
-                <h1>Barcha o`tkazmalar</h1>
-              </center>
-              {loading
-                ? "Loading..."
-                : payments &&
-                  payments.length > 0 && (
-                    <div>
-                      <hr />
-                      {payments.map((payment) => (
-                        <>
-                          {" "}
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              textAlign: "start !important",
-                            }}
-                            key={payment.id}
-                          >
-                            <b style={{ textAlign: "start" }}>
-                              {payment.time.slice(0, 10)} <br />{" "}
-                              {payment.time.slice(10, 16)}
-                            </b>
-                            <b>{payment.amount.toLocaleString()}so`m</b>
-                          </div>
-                          <hr />
-                        </>
-                      ))}
-                    </div>
-                  )}
-            </div>
           </div>
         </div>
         <br />
