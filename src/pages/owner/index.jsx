@@ -241,7 +241,19 @@ const OwnerDashboard = () => {
       <section className="owner">
         <div className="owner_header">
           <div className="owner_header_container">
+            <div className="container">
+              <div className="owner_header_container_header">
+                <div>
+                  <p>{`Республика Узбекистан город Ташкент OOO "SAIDAZIMSHOH"`}</p>
+                </div>
+
+                <div>
+                  <p>{`O'zbekiston Respublikasi Toshkent shahar MCHJ "SAIDAZIMSHOH"`}</p>
+                </div>
+              </div>
+            </div>
             <img src="/owner/owner.png" alt="" />
+
             <div>
               <h1>ABDIJALIL XOLMAMATOV</h1>
               <p>{`OOO "SAIDAZIMSHOH" firmasini asoschisi`}</p>
