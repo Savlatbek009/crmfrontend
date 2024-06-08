@@ -284,7 +284,7 @@ const OwnerDashboard = () => {
                           {element.lastName.slice(0, 1)}. {element.firstname}
                         </h1>
                         <p>Ish Boshqaruvchi</p>
-                        <p>Hisobi: {Number(element.balance).toLocaleString()}so'm</p>
+                        <p>Hisobi: {Number(element.balance).toLocaleString()}{`so'm`}</p>
                         {payments[element.id] &&
                           payments[element.id].length > 0 && (
                             <div>
