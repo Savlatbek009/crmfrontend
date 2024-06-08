@@ -1,4 +1,3 @@
-import WorkControllerCard from "../../components/workControllerCard";
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import { TOKEN } from "../../constant";
@@ -8,6 +7,7 @@ import { Button, Form, Input, Modal, message } from "antd";
 import { BiLogOut } from "react-icons/bi";
 
 import "./style.scss";
+import { Link } from "react-router-dom";
 
 const OwnerDashboard = () => {
   const { setIsAuthenticated, isAuthenticated } = useContext(AuthContext);
@@ -26,7 +26,7 @@ const OwnerDashboard = () => {
   const getData = async () => {
     try {
       setLoading(true);
-      const response = await request.get("/auth/get-all-admins");
+      const response = await request.get("auth/get-all-admins");
       setData(response.data);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -36,11 +36,10 @@ const OwnerDashboard = () => {
   };
 
   useEffect(() => {
-    getPayments();
     const getData = async () => {
       try {
         setLoading(true);
-        const response = await request.get("/auth/get-all-admins");
+        const response = await request.get("auth/get-all-admins");
         setData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -74,7 +73,7 @@ const OwnerDashboard = () => {
         password: values.password,
       };
       if (selected) {
-        await request.put(`/auth/update-admin`, { ...user, id: selected });
+        await request.put(`auth/update-admin`, { ...user, id: selected });
         message.success(`O'zgartirildi`);
         console.log(user);
       } else {
@@ -102,7 +101,7 @@ const OwnerDashboard = () => {
     const canIDelete = confirm("O'chirishga ishongching komilmi?");
     if (canIDelete) {
       try {
-        await request.delete(`/auth/delete-account/${id}`);
+        await request.delete(`auth/delete-account/${id}`);
         getData();
         message.success(`O'chirildi`);
       } catch (error) {
@@ -117,7 +116,7 @@ const OwnerDashboard = () => {
 
   const editController = async (id) => {
     try {
-      const response = await request.get(`/auth/get-by-id-admin/${id}`);
+      const response = await request.get(`auth/get-by-id-admin/${id}`);
       const controller = response.data;
       setSelected(controller.id);
       form.setFieldsValue({
@@ -148,16 +147,15 @@ const OwnerDashboard = () => {
     } catch (error) {
       console.log(error);
     }
-    getPayments();
+    getPayments(id);
   };
 
-  const getPayments = async () => {
+  const getPayments = async (id) => {
     try {
-      setLoading(true);
-      const res = await request.get("money/get-all");
-      setPayments(res.data);
-    } finally {
-      setLoading(false);
+      const res = await request.get("auth/get-by-id-admin/" + id);
+      setPayments({ ...payments, [id]: res.data.transactions });
+    } catch (err) {
+      message.error("Xatolik yuz berdi");
     }
   };
 
@@ -275,14 +273,93 @@ const OwnerDashboard = () => {
               {loading
                 ? "loading..."
                 : data.map((element) => (
-                    <WorkControllerCard
-                      onDelete={deleteController}
-                      onEdit={editController}
-                      onMoney={giveMoney}
-                      key={element.id}
-                      data={element}
-                    />
-                  ))}
+                  <div key={element.id}>
+                    <div className="owner_work_controllers_row_card">
+                      <div className="owner_work_controllers_row_card_header">
+                        <img src="/work-controller/wc.png" alt="" />
+                      </div>
+                      <div className="spacing_in_card" style={{ height: "50px" }}></div>
+                      <div className="owner_work_controllers_row_card_body">
+                        <h1>
+                          {element.lastName.slice(0, 1)}. {element.firstname}
+                        </h1>
+                        <p>Ish Boshqaruvchi</p>
+                        <p>Hisobi: {Number(element.balance).toLocaleString()}so'm</p>
+                        {payments[element.id] &&
+                          payments[element.id].length > 0 && (
+                            <div>
+                              <h3>O`tkazmalar tarixi</h3>
+                              <hr />
+                              {payments[element.id].map((payment) => (
+                                <>
+                                  {" "}
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                    }}
+                                    key={payment.id}
+                                  >
+                                    <b>
+                                      {payment.time.slice(0, 10)} <br />{" "}
+                                      {payment.time.slice(10, 16)}
+                                    </b>
+                                    <b>{payment.amount.toLocaleString()}so`m</b>
+                                  </div>
+                                  <hr />
+                                </>
+                              ))}
+                            </div>
+                          )}
+                        <div className="owner_work_controllers_row_card_body_buttons">
+                          <center>
+                            <Button
+                              onClick={() => editController(element.id)}
+                              type="primary"
+                            >{`O'zgartirish`}</Button>
+
+                            <Button onClick={() => giveMoney(element.id)}>{`Pul berish`}</Button>
+                          </center>
+                          <center>
+                            <Button
+                              onClick={() => deleteController(element.id)}
+                              danger
+                            >{`O'chirish`}</Button>
+                            <Button
+                              onClick={() => getPayments(element.id)}
+                              danger
+                            >{`To'lovlarni ko'rish`}</Button>
+                          </center>
+                        </div>
+                      </div>
+                      <center>
+                        <Link
+                          onClick={() => {
+                            Cookies.set("work_controller_id", element.id);
+                          }}
+                          to={"/work-controller-dashboard"}
+                        >
+                          <Button
+                            style={{
+                              width: "100%",
+                              borderRadius: "0",
+                              backgroundColor: "#000",
+                              color: "#fff",
+                              borderColor: "#000",
+                              fontSize: "19px",
+                              padding: "10px",
+                              height: "auto",
+                            }}
+                          >
+                            Kirish
+                          </Button>
+                        </Link>
+                      </center>
+                    </div>
+                    <br className="spacing_in_bottom" />
+                  </div>
+                ))}
             </div>
             <div>
               <center>
@@ -291,32 +368,32 @@ const OwnerDashboard = () => {
               {loading
                 ? "Loading..."
                 : payments &&
-                  payments.length > 0 && (
-                    <div>
-                      <hr />
-                      {payments.map((payment) => (
-                        <>
-                          {" "}
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                              textAlign: "start !important",
-                            }}
-                            key={payment.id}
-                          >
-                            <b style={{ textAlign: "start" }}>
-                              {payment.time.slice(0, 10)} <br />{" "}
-                              {payment.time.slice(10, 16)}
-                            </b>
-                            <b>{payment.amount.toLocaleString()}so`m</b>
-                          </div>
-                          <hr />
-                        </>
-                      ))}
-                    </div>
-                  )}
+                payments.length > 0 && (
+                  <div>
+                    <hr />
+                    {payments.map((payment) => (
+                      <>
+                        {" "}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            textAlign: "start !important",
+                          }}
+                          key={payment.id}
+                        >
+                          <b style={{ textAlign: "start" }}>
+                            {payment.time.slice(0, 10)} <br />{" "}
+                            {payment.time.slice(10, 16)}
+                          </b>
+                          <b>{payment.amount.toLocaleString()}so`m</b>
+                        </div>
+                        <hr />
+                      </>
+                    ))}
+                  </div>
+                )}
             </div>
           </div>
         </div>

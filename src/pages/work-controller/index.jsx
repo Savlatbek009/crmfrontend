@@ -14,13 +14,17 @@ import {
   AccordionItemHeading,
   AccordionItemPanel,
 } from "react-accessible-accordion";
+import { PiPlusBold } from "react-icons/pi";
+
 
 const WorkControllerDashboard = () => {
   const { setIsAuthenticated } = useContext(AuthContext);
   const [data, setData] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filteredWorkers, setFilteredWorkers] = useState([])
   const [payments, setPayments] = useState(false);
+  const [workplaces, setWorkplaces] = useState([]);
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -36,7 +40,9 @@ const WorkControllerDashboard = () => {
         "/auth/get-by-id-admin/" + work_controller_id
       );
       setData(response.data);
+      setWorkplaces(response.data.workers.map(item => item.workPlace));
       setWorkers(response.data.workers);
+      setFilteredWorkers(response.data.workers)
       console.log(response.data.workers);
       console.log(response.data);
     } catch (error) {
@@ -126,6 +132,30 @@ const WorkControllerDashboard = () => {
       console.log(error);
     }
   };
+
+  const filterWorker = (e) => {
+    const value = e.target.value
+    if (value == 'All') {
+      setFilteredWorkers(workers)
+    } else {
+      const filtered = workers.filter(worker =>
+        worker.workPlace.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredWorkers(filtered)
+    }
+  }
+  const filterWorkerSearch = (e) => {
+    const value = e.target.value
+    if (value === '') {
+      setFilteredWorkers(workers)
+    } else {
+      const filtered = filteredWorkers.filter(worker =>
+        worker?.firstName.toLowerCase().includes(value.toLowerCase()) ||
+        worker?.lastName.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredWorkers(filtered)
+    }
+  }
 
   return (
     <>
@@ -236,9 +266,10 @@ const WorkControllerDashboard = () => {
         <hr style={{ marginBottom: "35px" }} />
         <div className="container">
           <div className="wc_work_controllers">
-            <center>
-              {" "}
+            <center className="wc_work_controllers_header1" >
               <h1>Ishchilar</h1>
+              <button className="add_new_admin_button" onClick={openModal}><PiPlusBold /> {`Qo'shish`}</button>
+
             </center>
             <div className="wc_work_controllers_header">
               <input
@@ -246,19 +277,25 @@ const WorkControllerDashboard = () => {
                 autoComplete="false"
                 type="search"
                 name="search"
+                onChange={filterWorkerSearch}
               />
-              <button onClick={openModal}>{`Qo'shish`}</button>
+              <select className="select_in_worker" onChange={filterWorker}>
+                <option value="All">All</option>
+                {workplaces.map((workplace) => (
+                  <option key={workplace} value={workplace}>{workplace}</option>
+                ))}
+              </select>
             </div>
             <br />
             <div className="wc_work_controllers_row">
               <Accordion allowMultipleExpanded allowZeroExpanded>
-                {workers.map((worker) => (
+                {filteredWorkers.map((worker) => (
                   <AccordionItem key={worker.id}>
                     <AccordionItemHeading>
                       <AccordionItemButton>
-                        <b style={{ width: "33%" }}>{worker.position}</b>
-                        <b style={{ width: "33%" }}>{worker.workPlace}da</b>
-                        <b style={{ width: "33%" }}>
+                        <b style={{ width: "40%" }}>{worker.position}</b>
+
+                        <b style={{ width: "40%" }}>
                           {worker.firstName} {worker.lastName}
                         </b>
                       </AccordionItemButton>
@@ -292,21 +329,10 @@ const WorkControllerDashboard = () => {
                           {Math.floor(
                             (new Date().getTime() -
                               new Date(worker.startTime).getTime()) /
-                              (1000 * 60 * 60 * 24)
+                            (1000 * 60 * 60 * 24)
                           ) *
-                            worker.salaryDaily -
-                            worker.earnedMoney >
-                          0
-                            ? (
-                                Math.floor(
-                                  (new Date().getTime() -
-                                    new Date(worker.startTime).getTime()) /
-                                    (1000 * 60 * 60 * 24)
-                                ) *
-                                  worker.salaryDaily -
-                                worker.earnedMoney
-                              ).toLocaleString()
-                            : "0"}
+                            worker.salaryDaily
+                          }
                           {`so'm`}
                         </p>
                         <p
@@ -322,11 +348,11 @@ const WorkControllerDashboard = () => {
                             {Math.floor(
                               (new Date().getTime() -
                                 new Date(worker.startTime).getTime()) /
-                                (1000 * 60 * 60 * 24)
+                              (1000 * 60 * 60 * 24)
                             ).toLocaleString() *
                               worker.salaryDaily -
                               worker.earnedMoney >
-                            0
+                              0
                               ? "Biz Qarzmiz"
                               : "Bizdan qarz"}
                           </b>
@@ -334,9 +360,9 @@ const WorkControllerDashboard = () => {
                             Math.floor(
                               (new Date().getTime() -
                                 new Date(worker.startTime).getTime()) /
-                                (1000 * 60 * 60 * 24)
+                              (1000 * 60 * 60 * 24)
                             ) *
-                              worker.salaryDaily -
+                            worker.salaryDaily -
                             worker.earnedMoney
                           ).toLocaleString()}
                           {`so'm`}
@@ -358,11 +384,14 @@ const WorkControllerDashboard = () => {
                         {payments[worker.id] &&
                           payments[worker.id].length > 0 && (
                             <div>
-                              <h3>O`tkazmalar tarixi</h3>
+                              <center>
+                                <h2>O`tkazmalar tarixi</h2>
+                              </center>
                               <hr />
                               {payments[worker.id].map((payment) => (
                                 <>
-                                  {" "}
+                                  <h3 style={{ color: 'blue' }}>{worker.workPlace}da</h3>
+
                                   <div
                                     style={{
                                       display: "flex",
@@ -371,11 +400,12 @@ const WorkControllerDashboard = () => {
                                     }}
                                     key={payment.id}
                                   >
+
                                     <b>
                                       {payment.time.slice(0, 10)} <br />{" "}
                                       {payment.time.slice(10, 16)}
                                     </b>
-                                    <b>{payment.amount.toLocaleString()}so`m</b>
+                                    <b style={{ color: "green" }}>{payment.amount.toLocaleString()}so`m</b>
                                   </div>
                                   <hr />
                                 </>
@@ -383,7 +413,7 @@ const WorkControllerDashboard = () => {
                             </div>
                           )}
                         <br />
-                        <p>
+                        <center className="buttons_container">
                           <Button
                             onClick={() => giveMoney(worker.id)}
                             type="primary"
@@ -397,11 +427,10 @@ const WorkControllerDashboard = () => {
                           <Button onClick={() => getPayments(worker.id)} danger>
                             {`To'lovlarni ko'rish`}
                           </Button>
-                        </p>
+                        </center>
                       </p>
                     </AccordionItemPanel>
-                  </AccordionItem>
-                ))}
+                  </AccordionItem>))}
               </Accordion>
             </div>
           </div>
@@ -424,9 +453,8 @@ const WorkControllerDashboard = () => {
           </Button>
         </center>
         <br />
-      </section>
+      </section >
     </>
   );
-};
-
+}
 export default WorkControllerDashboard;

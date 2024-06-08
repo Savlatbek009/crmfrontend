@@ -17,38 +17,48 @@
     }
   }
   &_work_controllers {
+    @media (max-width: 850px) {
+      display: block !important;
+    }
     h1 {
       margin-bottom: 10px !important;
       text-transform: uppercase;
       font-weight: 900;
     }
+    .add_new_admin_button {
+      box-sizing: border-box;
+      width: 15.5%;
+      transition: 0.2s all;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 19px;
+      font-weight: 600;
+      @media (max-width: 1100px) {
+        width: 100%;
+        display: block !important;
+      }
+      &:hover {
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+      }
+    }
+
     &_header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 10px;
       @media (max-width: 1100px) {
-        display: block;
+        display: block !important;
       }
-      button {
-        box-sizing: border-box;
-        width: 15%;
-        transition: 0.2s all;
-        padding: 10px 20px;
-        background: #000;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 19px;
-        font-weight: 600;
-        @media (max-width: 1100px) {
-          width: 100%;
-        }
-        &:hover {
-          box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
-        }
-      }
+
       input {
         transition: 0.2s all;
         width: 85%;
@@ -71,6 +81,17 @@
         }
       }
     }
+    &_header1 {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      @media (max-width: 1100px) {
+        display: block !important;
+        margin-bottom: 10px;
+      }
+    }
   }
 }
 .spacing_in_bottom {
@@ -82,5 +103,32 @@
   }
   .spacing_in_bottom {
     display: block;
+  }
+}
+
+.buttons_container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  @media (max-width: 850px) {
+    display: block;
+    gap: 10px;
+    button {
+      margin: 5px;
+    }
+  }
+}
+
+.select_in_worker {
+  outline: none;
+  padding: 9px 5px;
+  display: flex;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 4px;
+  font-size: 19px;
+  @media (max-width: 850px) {
+    width: 100%;
   }
 }
