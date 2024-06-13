@@ -27,6 +27,7 @@ const WorkControllerDashboard = () => {
   const [isModalOpen2, setIsModalOpen2] = useState(false);
   const [payments, setPayments] = useState([]);
   const [isShow, setIsShow] = useState(false);
+  const [loading, setLoading] = useState(false)
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -184,14 +185,29 @@ const WorkControllerDashboard = () => {
   };
 
   const onFilter = async (e) => {
-    if (e) {
-      const res = await request.get('worker/filter-worker/' + e)
-      const res2 = await request.get('place/filter-place/' + e)
-      setWorkers([...res.data, res2.data])
-    } else {
-      getData()
+    try {
+      if (e) {
+        setLoading(true)
+        const res = await request.get('worker/filter-worker/' + e)
+        const res2 = await request.get('place/filter-place/' + e)
+        if (res.status === 200 && res2.status === 200) {
+          setWorkers([...res.data, ...res2.data])
+        } else if (res.status === 200) {
+          setWorkers(res.data)
+        } else if (res2.status === 200) {
+          setWorkers(res2.data)
+        } else {
+          setWorkers([])
+        }
+      } else {
+        getData()
+      }
+
+    } finally {
+      setLoading(false)
     }
   }
+
 
 
 
@@ -359,119 +375,121 @@ const WorkControllerDashboard = () => {
             <br />
             <div className="wc_work_controllers_row">
               <Accordion allowMultipleExpanded allowZeroExpanded>
-                {workers.map((worker) => (
-                  <AccordionItem key={worker.id}>
-                    <AccordionItemHeading>
-                      <AccordionItemButton>
-                        <b style={{ width: "40%" }}>{worker.position}</b>
+                {
+                  loading ? <center style={{ marginTop: '9px', color: 'red' }}><h1>Yuklanmoqda...</h1></center> :
+                    workers.length ? workers.map((worker) => (
+                      <AccordionItem key={worker.id}>
+                        <AccordionItemHeading>
+                          <AccordionItemButton>
+                            <b style={{ width: "40%" }}>{worker.position}</b>
 
-                        <b style={{ width: "40%" }}>
-                          {worker.firstName} {worker.lastName}
-                        </b>
-                      </AccordionItemButton>
-                    </AccordionItemHeading>
-                    <AccordionItemPanel>
-                      <p>
-                        <p
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            borderBottom: "1px solid #000",
-                            paddingTop: "5px",
-                            color: "blue",
-                          }}
-                        >
-                          <b>Ish Tarixi:</b> {worker.startTime.slice(0, 10)} -
-                          {worker.endTime.startsWith("000")
-                            ? " Hozirgacha"
-                            : worker.endTime}
-                        </p>
-                        {workPlaces[worker.id] &&
-                          workPlaces[worker.id].length > 0 && (
-                            <div >
-                              {workPlaces[worker.id].map((workPlace) => (
-                                <>
-                                  <div style={{ background: '#ddd', padding: '10px' }}>
-                                    <center><h2 style={{ color: 'blue' }}>{workPlace.name}</h2></center>
-                                    <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>pul berilishi kerak: <b style={{ color: "green" }}>{workPlace.amount.toLocaleString()}so`m</b></b>
-                                    <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>pul berildi: <b style={{ color: "green" }}>{workPlace.earnedMoney.toLocaleString()}so`m</b></b>
-                                    <b>
-                                      <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        {workPlace.amount - workPlace.earnedMoney < 0 ? "Bizdan qarz" : "Biz qarzmiz"}
-                                        <b style={{
-                                          color: workPlace.amount - workPlace.earnedMoney < 0 ? "red" : "green"
-                                        }}>{(workPlace.amount - workPlace.earnedMoney).toLocaleString()}so`m</b></b>
-                                    </b>
-                                  </div>
-                                  {isShow ?
-                                    payments[workPlace.id] && payments[workPlace.id].length > 0 && (
-                                      <div style={{ background: '#f5f5f5', padding: '10px' }}>
-                                        <hr />
-                                        {payments[workPlace.id].map((payment) => (
-                                          <>
-                                            <div
-                                              key={payment.id}
-                                              style={{
-                                                display: "flex",
-                                                justifyContent: "space-between",
-                                                alignItems: "center",
-                                              }}
-                                            >
-                                              <b>
-                                                {payment.time.slice(0, 10)} <br />{" "}
-                                                {payment.time.slice(11, 16)}
-                                              </b>
-                                              <b style={{ color: "green" }}>
-                                                {payment.amount.toLocaleString()} {`so'm`}
-                                              </b>
-                                            </div>
-                                            <hr />
-                                          </>
-                                        ))}
+                            <b style={{ width: "40%" }}>
+                              {worker.firstName} {worker.lastName}
+                            </b>
+                          </AccordionItemButton>
+                        </AccordionItemHeading>
+                        <AccordionItemPanel>
+                          <p>
+                            <p
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                borderBottom: "1px solid #000",
+                                paddingTop: "5px",
+                                color: "blue",
+                              }}
+                            >
+                              <b>Ish Tarixi:</b> {worker.startTime.slice(0, 10)} -
+                              {worker.endTime.startsWith("000")
+                                ? " Hozirgacha"
+                                : worker.endTime}
+                            </p>
+                            {workPlaces[worker.id] &&
+                              workPlaces[worker.id].length > 0 && (
+                                <div >
+                                  {workPlaces[worker.id].map((workPlace) => (
+                                    <>
+                                      <div style={{ background: '#ddd', padding: '10px' }}>
+                                        <center><h2 style={{ color: 'blue' }}>{workPlace.name}</h2></center>
+                                        <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>pul berilishi kerak: <b style={{ color: "green" }}>{workPlace.amount.toLocaleString()}so`m</b></b>
+                                        <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>pul berildi: <b style={{ color: "green" }}>{workPlace.earnedMoney.toLocaleString()}so`m</b></b>
+                                        <b>
+                                          <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            {workPlace.amount - workPlace.earnedMoney < 0 ? "Bizdan qarz" : "Biz qarzmiz"}
+                                            <b style={{
+                                              color: workPlace.amount - workPlace.earnedMoney < 0 ? "red" : "green"
+                                            }}>{(workPlace.amount - workPlace.earnedMoney).toLocaleString()}so`m</b></b>
+                                        </b>
                                       </div>
-                                    ) : null}
-                                  <Button
-                                    style={{ margin: '10px 0' }}
-                                    onClick={() => giveMoney(workPlace.id, worker.id)}
-                                    type="primary"
-                                  >
-                                    Pul berish
-                                  </Button>
-                                  <hr />
-                                </>
-                              ))}
+                                      {isShow ?
+                                        payments[workPlace.id] && payments[workPlace.id].length > 0 && (
+                                          <div style={{ background: '#f5f5f5', padding: '10px' }}>
+                                            <hr />
+                                            {payments[workPlace.id].map((payment) => (
+                                              <>
+                                                <div
+                                                  key={payment.id}
+                                                  style={{
+                                                    display: "flex",
+                                                    justifyContent: "space-between",
+                                                    alignItems: "center",
+                                                  }}
+                                                >
+                                                  <b>
+                                                    {payment.time.slice(0, 10)} <br />{" "}
+                                                    {payment.time.slice(11, 16)}
+                                                  </b>
+                                                  <b style={{ color: "green" }}>
+                                                    {payment.amount.toLocaleString()} {`so'm`}
+                                                  </b>
+                                                </div>
+                                                <hr />
+                                              </>
+                                            ))}
+                                          </div>
+                                        ) : null}
+                                      <Button
+                                        style={{ margin: '10px 0' }}
+                                        onClick={() => giveMoney(workPlace.id, worker.id)}
+                                        type="primary"
+                                      >
+                                        Pul berish
+                                      </Button>
+                                      <hr />
+                                    </>
+                                  ))}
+                                </div>
+                              )}
+
+                            <div>
+
                             </div>
-                          )}
-
-                        <div>
-
-                        </div>
-                        <br />
-                        <center className="buttons_container">
+                            <br />
+                            <center className="buttons_container">
 
 
-                          <Button onClick={() => stopCareer(worker.id)} danger>
-                            {`To'xtatish`}
-                          </Button>
-                          <Button onClick={() => getPayments(worker.id)} danger>
-                            {isShow ? `To'lovlarni yopish` : `To'lovlarni ochish`}
-                          </Button>
-                          <Button
-                            onClick={() => getWorkPlaces(worker.id)}
-                            type="primary"
-                          >
-                            {`Ish joylarini ko'rish`}
-                          </Button>
-                          <Button
-                            onClick={() => openModal2(worker.id)}
-                            type="primary"
-                          >
-                            {`Abyom qo'shish`}
-                          </Button>
-                        </center>
-                      </p>
-                    </AccordionItemPanel>
-                  </AccordionItem>))}
+                              <Button onClick={() => stopCareer(worker.id)} danger>
+                                {`To'xtatish`}
+                              </Button>
+                              <Button onClick={() => getPayments(worker.id)} danger>
+                                {isShow ? `To'lovlarni yopish` : `To'lovlarni ochish`}
+                              </Button>
+                              <Button
+                                onClick={() => getWorkPlaces(worker.id)}
+                                type="primary"
+                              >
+                                {`Ish joylarini ko'rish`}
+                              </Button>
+                              <Button
+                                onClick={() => openModal2(worker.id)}
+                                type="primary"
+                              >
+                                {`Abyom qo'shish`}
+                              </Button>
+                            </center>
+                          </p>
+                        </AccordionItemPanel>
+                      </AccordionItem>)) : <center style={{ marginTop: '9px', color: 'red' }}><h1>Topilmadi :(</h1></center>}
               </Accordion>
             </div>
           </div>
