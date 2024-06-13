@@ -18,6 +18,7 @@ import { PiPlusBold } from "react-icons/pi";
 
 
 const WorkControllerDashboard = () => {
+  const { Search } = Input;
   const { setIsAuthenticated } = useContext(AuthContext);
   const [data, setData] = useState([]);
   const [workers, setWorkers] = useState([]);
@@ -182,6 +183,16 @@ const WorkControllerDashboard = () => {
     }
   };
 
+  const onFilter = async (e) => {
+    if (e) {
+      const res = await request.get('worker/filter-worker/' + e)
+      const res2 = await request.get('place/filter-place/' + e)
+      setWorkers([...res.data, res2.data])
+    } else {
+      getData()
+    }
+  }
+
 
 
   return (
@@ -340,7 +351,9 @@ const WorkControllerDashboard = () => {
         <div className="container">
           <div className="wc_work_controllers">
             <center className="wc_work_controllers_header1" >
-              <h1>Ishchilar</h1>
+              <p>Ishchilar</p>
+              <br />
+              <Search placeholder="Qidirish..." onSearch={onFilter} size="large" enterButton /> <br /><br />
               <button className="add_new_admin_button" onClick={openModal}><PiPlusBold /> {`Qo'shish`}</button>
             </center>
             <br />
