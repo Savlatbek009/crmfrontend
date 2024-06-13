@@ -17,6 +17,7 @@ const OwnerDashboard = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
+  const [isShow, setIsShow] = useState(false)
 
   const logout = () => {
     setIsAuthenticated(false);
@@ -151,12 +152,16 @@ const OwnerDashboard = () => {
   };
 
   const getPayments = async (id) => {
-    try {
-      const res = await request.get("auth/get-by-id-admin/" + id);
-      setPayments({ ...payments, [id]: res.data.transactions });
-    } catch (err) {
-      message.error("Xatolik yuz berdi");
+    if (!isShow) {
+
+      try {
+        const res = await request.get("auth/get-by-id-admin/" + id);
+        setPayments({ ...payments, [id]: res.data.transactions });
+      } catch (err) {
+        message.error("Xatolik yuz berdi");
+      }
     }
+    setIsShow(!isShow)
   };
 
   return (
@@ -285,14 +290,13 @@ const OwnerDashboard = () => {
                         </h1>
                         <p>Ish Boshqaruvchi</p>
                         <p>Hisobi: {Number(element.balance).toLocaleString()}{`so'm`}</p>
-                        {payments[element.id] &&
+                        {isShow && payments[element.id] &&
                           payments[element.id].length > 0 && (
                             <div>
                               <h3>O`tkazmalar tarixi</h3>
                               <hr />
                               {payments[element.id].map((payment) => (
                                 <>
-                                  {" "}
                                   <div
                                     style={{
                                       display: "flex",
@@ -309,6 +313,7 @@ const OwnerDashboard = () => {
                                   </div>
                                   <hr />
                                 </>
+
                               ))}
                             </div>
                           )}
@@ -329,7 +334,9 @@ const OwnerDashboard = () => {
                             <Button
                               onClick={() => getPayments(element.id)}
                               danger
-                            >{`To'lovlarni ko'rish`}</Button>
+                            >
+                              {isShow ? `To'lovlarni yopish` : `To'lovlarni ochish`}
+                            </Button>
                           </center>
                         </div>
                       </div>
@@ -361,40 +368,7 @@ const OwnerDashboard = () => {
                   </div>
                 ))}
             </div>
-            <div>
-              <center>
-                <h1>Barcha o`tkazmalar</h1>
-              </center>
-              {loading
-                ? "Loading..."
-                : payments &&
-                payments.length > 0 && (
-                  <div>
-                    <hr />
-                    {payments.map((payment) => (
-                      <>
-                        {" "}
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            textAlign: "start !important",
-                          }}
-                          key={payment.id}
-                        >
-                          <b style={{ textAlign: "start" }}>
-                            {payment.time.slice(0, 10)} <br />{" "}
-                            {payment.time.slice(10, 16)}
-                          </b>
-                          <b>{payment.amount.toLocaleString()}so`m</b>
-                        </div>
-                        <hr />
-                      </>
-                    ))}
-                  </div>
-                )}
-            </div>
+
           </div>
         </div>
         <br />

@@ -21,10 +21,11 @@ const WorkControllerDashboard = () => {
   const { setIsAuthenticated } = useContext(AuthContext);
   const [data, setData] = useState([]);
   const [workers, setWorkers] = useState([]);
+  const [workPlaces, setWorkPlaces] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filteredWorkers, setFilteredWorkers] = useState([])
-  const [payments, setPayments] = useState(false);
-  const [workplaces, setWorkplaces] = useState([]);
+  const [isModalOpen2, setIsModalOpen2] = useState(false);
+  const [payments, setPayments] = useState([]);
+  const [isShow, setIsShow] = useState(false);
   const [form] = Form.useForm();
 
   const logout = () => {
@@ -40,24 +41,43 @@ const WorkControllerDashboard = () => {
         "/auth/get-by-id-admin/" + work_controller_id
       );
       setData(response.data);
-      setWorkplaces(response.data.workers.map(item => item.workPlace));
       setWorkers(response.data.workers);
-      setFilteredWorkers(response.data.workers)
-      console.log(response.data.workers);
-      console.log(response.data);
+
     } catch (error) {
       console.error("Error fetching data:", error);
     }
   };
 
   const getPayments = async (id) => {
+    if (!isShow) {
+      try {
+        const res = await request.get("worker/get-by-id-worker/" + id);
+        const transactions = {};
+
+        res.data.workPlaces.forEach(workPlace => {
+          transactions[workPlace.id] = workPlace.transactions;
+        });
+
+        setPayments(transactions);
+
+
+      } catch (err) {
+        message.error("Xatolik yuz berdi");
+      }
+    }
+    setIsShow(!isShow);
+
+  };
+
+  const getWorkPlaces = async (id) => {
     try {
       const res = await request.get("worker/get-by-id-worker/" + id);
-      setPayments({ ...payments, [id]: res.data.transactions });
+      setWorkPlaces({ ...workPlaces, [id]: res.data.workPlaces })
+      console.log(workPlaces);
     } catch (err) {
       message.error("Xatolik yuz berdi");
     }
-  };
+  }
 
   useEffect(() => {
     getData();
@@ -71,6 +91,34 @@ const WorkControllerDashboard = () => {
   const openModal = () => {
     setIsModalOpen(true);
   };
+
+  const closeModal2 = () => {
+    setIsModalOpen2(false);
+    form.resetFields();
+  };
+
+  const openModal2 = (id) => {
+    Cookies.set('worker_id', id)
+    setIsModalOpen2(true);
+  };
+
+  const handleOk2 = async (e) => {
+    const id = Cookies.get('worker_id')
+
+    try {
+      let user = {
+        name: e.name,
+        amount: e.amount,
+        workerId: id
+      }
+      await request.post('place/create/', user);
+      message.success(`Qo'shildi`);
+      getWorkPlaces(id);
+      closeModal2();
+    } catch (err) {
+      console.log('Nomalum xato, iltimos sahifani yangilang');
+    }
+  }
   const handleOk = async () => {
     const work_controller_id = Cookies.get("work_controller_id");
 
@@ -80,8 +128,6 @@ const WorkControllerDashboard = () => {
         firstName: values.firstName,
         lastName: values.lastName,
         position: values.position,
-        salaryDaily: values.salaryDaily,
-        workPlace: values.workPlace,
         startTime: values.startTime,
         userId: work_controller_id,
       };
@@ -102,18 +148,21 @@ const WorkControllerDashboard = () => {
     }
   };
 
-  const giveMoney = async (id) => {
+
+
+  const giveMoney = async (id, id2) => {
     const moneyAnmount = prompt("Summani kiriting");
     const userId = Cookies.get("work_controller_id");
     try {
-      const res = await request.post("money/give-money-to-worker", {
-        toUserId: id,
+      await request.post("money/give-money-to-worker", {
+        toUserId: id2,
         fromUserId: userId,
+        placeId: id,
         amount: moneyAnmount,
       });
-      getData();
-      getPayments(id);
-      console.log(res);
+      getPayments(id2);
+      getWorkPlaces(id2)
+      getData()
     } catch (err) {
       message.error(
         "Sizda mablag' yetarli emas yoki ishchi faoliyatini to'xtatgan"
@@ -133,29 +182,7 @@ const WorkControllerDashboard = () => {
     }
   };
 
-  const filterWorker = (e) => {
-    const value = e.target.value
-    if (value == 'All') {
-      setFilteredWorkers(workers)
-    } else {
-      const filtered = workers.filter(worker =>
-        worker.workPlace.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredWorkers(filtered)
-    }
-  }
-  const filterWorkerSearch = (e) => {
-    const value = e.target.value
-    if (value === '') {
-      setFilteredWorkers(workers)
-    } else {
-      const filtered = filteredWorkers.filter(worker =>
-        worker?.firstName.toLowerCase().includes(value.toLowerCase()) ||
-        worker?.lastName.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredWorkers(filtered)
-    }
-  }
+
 
   return (
     <>
@@ -204,8 +231,8 @@ const WorkControllerDashboard = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item
-            label="Abyom"
+          {/* <Form.Item
+            label="Obyekt"
             name="workPlace"
             rules={[
               {
@@ -215,7 +242,7 @@ const WorkControllerDashboard = () => {
             ]}
           >
             <Input />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item
             label="Vazifasi"
             name="position"
@@ -228,7 +255,7 @@ const WorkControllerDashboard = () => {
           >
             <Input />
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="Kungi to'lanadi"
             name="salaryDaily"
             rules={[
@@ -239,7 +266,7 @@ const WorkControllerDashboard = () => {
             ]}
           >
             <Input />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item
             label="Ish boshlash vaqti"
             name="startTime"
@@ -252,6 +279,52 @@ const WorkControllerDashboard = () => {
           >
             <Input />
           </Form.Item>
+        </Form>
+      </Modal>
+      <Modal
+        title={"Abyom qo'shish"}
+        open={isModalOpen2}
+        onCancel={closeModal2}
+      >
+        <Form
+          name="ishchi"
+          onFinish={handleOk2}
+          labelCol={{
+            span: 24,
+          }}
+          wrapperCol={{
+            span: 24,
+          }}
+          style={{
+            maxWidth: 600,
+          }}
+          autoComplete="off"
+        >
+          <Form.Item
+            label="Obyekt nomi"
+            name="name"
+            rules={[
+              {
+                required: true,
+                message: "Please fill !",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Kelishilgan summa"
+            name="amount"
+            rules={[
+              {
+                required: true,
+                message: "Please fill !",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Button htmlType="submit">{`Qo'shish`}</Button>
         </Form>
       </Modal>
       <section className="wc">
@@ -269,27 +342,11 @@ const WorkControllerDashboard = () => {
             <center className="wc_work_controllers_header1" >
               <h1>Ishchilar</h1>
               <button className="add_new_admin_button" onClick={openModal}><PiPlusBold /> {`Qo'shish`}</button>
-
             </center>
-            <div className="wc_work_controllers_header">
-              <input
-                placeholder="Search..."
-                autoComplete="false"
-                type="search"
-                name="search"
-                onChange={filterWorkerSearch}
-              />
-              <select className="select_in_worker" onChange={filterWorker}>
-                <option value="All">All</option>
-                {workplaces.map((workplace) => (
-                  <option key={workplace} value={workplace}>{workplace}</option>
-                ))}
-              </select>
-            </div>
             <br />
             <div className="wc_work_controllers_row">
               <Accordion allowMultipleExpanded allowZeroExpanded>
-                {filteredWorkers.map((worker) => (
+                {workers.map((worker) => (
                   <AccordionItem key={worker.id}>
                     <AccordionItemHeading>
                       <AccordionItemButton>
@@ -316,116 +373,87 @@ const WorkControllerDashboard = () => {
                             ? " Hozirgacha"
                             : worker.endTime}
                         </p>
-
-                        <p
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            borderBottom: "1px solid #000",
-                            paddingTop: "5px",
-                          }}
-                        >
-                          <b>Pul berilishi kerak:</b>{" "}
-                          {Math.floor(
-                            (new Date().getTime() -
-                              new Date(worker.startTime).getTime()) /
-                            (1000 * 60 * 60 * 24)
-                          ) *
-                            worker.salaryDaily
-                          }
-                          {`so'm`}
-                        </p>
-                        <p
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            borderBottom: "1px solid #000",
-                            paddingTop: "5px",
-                            color: "red",
-                          }}
-                        >
-                          <b>
-                            {Math.floor(
-                              (new Date().getTime() -
-                                new Date(worker.startTime).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                            ).toLocaleString() *
-                              worker.salaryDaily -
-                              worker.earnedMoney >
-                              0
-                              ? "Biz Qarzmiz"
-                              : "Bizdan qarz"}
-                          </b>
-                          {(
-                            Math.floor(
-                              (new Date().getTime() -
-                                new Date(worker.startTime).getTime()) /
-                              (1000 * 60 * 60 * 24)
-                            ) *
-                            worker.salaryDaily -
-                            worker.earnedMoney
-                          ).toLocaleString()}
-                          {`so'm`}
-                        </p>
-                        <p
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            borderBottom: "1px solid #000",
-                            paddingTop: "5px",
-                            color: worker.earnedMoney ? "green" : "red",
-                          }}
-                        >
-                          <b>Pul berilgan:</b>{" "}
-                          {worker.earnedMoney.toLocaleString()}
-                          {`so'm`}
-                        </p>
-                        <br />
-                        {payments[worker.id] &&
-                          payments[worker.id].length > 0 && (
-                            <div>
-                              <center>
-                                <h2>O`tkazmalar tarixi</h2>
-                              </center>
-                              <hr />
-                              {payments[worker.id].map((payment) => (
+                        {workPlaces[worker.id] &&
+                          workPlaces[worker.id].length > 0 && (
+                            <div >
+                              {workPlaces[worker.id].map((workPlace) => (
                                 <>
-                                  <h3 style={{ color: 'blue' }}>{worker.workPlace}da</h3>
-
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "space-between",
-                                      alignItems: "center",
-                                    }}
-                                    key={payment.id}
-                                  >
-
+                                  <div style={{ background: '#ddd', padding: '10px' }}>
+                                    <center><h2 style={{ color: 'blue' }}>{workPlace.name}</h2></center>
+                                    <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>pul berilishi kerak: <b style={{ color: "green" }}>{workPlace.amount.toLocaleString()}so`m</b></b>
+                                    <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>pul berildi: <b style={{ color: "green" }}>{workPlace.earnedMoney.toLocaleString()}so`m</b></b>
                                     <b>
-                                      {payment.time.slice(0, 10)} <br />{" "}
-                                      {payment.time.slice(10, 16)}
+                                      <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        {workPlace.amount - workPlace.earnedMoney < 0 ? "Bizdan qarz" : "Biz qarzmiz"}
+                                        <b style={{
+                                          color: workPlace.amount - workPlace.earnedMoney < 0 ? "red" : "green"
+                                        }}>{(workPlace.amount - workPlace.earnedMoney).toLocaleString()}so`m</b></b>
                                     </b>
-                                    <b style={{ color: "green" }}>{payment.amount.toLocaleString()}so`m</b>
                                   </div>
+                                  {isShow ?
+                                    payments[workPlace.id] && payments[workPlace.id].length > 0 && (
+                                      <div style={{ background: '#f5f5f5', padding: '10px' }}>
+                                        <hr />
+                                        {payments[workPlace.id].map((payment) => (
+                                          <>
+                                            <div
+                                              key={payment.id}
+                                              style={{
+                                                display: "flex",
+                                                justifyContent: "space-between",
+                                                alignItems: "center",
+                                              }}
+                                            >
+                                              <b>
+                                                {payment.time.slice(0, 10)} <br />{" "}
+                                                {payment.time.slice(11, 16)}
+                                              </b>
+                                              <b style={{ color: "green" }}>
+                                                {payment.amount.toLocaleString()} {`so'm`}
+                                              </b>
+                                            </div>
+                                            <hr />
+                                          </>
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                  <Button
+                                    style={{ margin: '10px 0' }}
+                                    onClick={() => giveMoney(workPlace.id, worker.id)}
+                                    type="primary"
+                                  >
+                                    Pul berish
+                                  </Button>
                                   <hr />
                                 </>
                               ))}
                             </div>
                           )}
+
+                        <div>
+
+                        </div>
                         <br />
                         <center className="buttons_container">
-                          <Button
-                            onClick={() => giveMoney(worker.id)}
-                            type="primary"
-                          >
-                            Pul berish
-                          </Button>
+
 
                           <Button onClick={() => stopCareer(worker.id)} danger>
                             {`To'xtatish`}
                           </Button>
                           <Button onClick={() => getPayments(worker.id)} danger>
-                            {`To'lovlarni ko'rish`}
+                            {isShow ? `To'lovlarni yopish` : `To'lovlarni ochish`}
+                          </Button>
+                          <Button
+                            onClick={() => getWorkPlaces(worker.id)}
+                            type="primary"
+                          >
+                            {`Ish joylarini ko'rish`}
+                          </Button>
+                          <Button
+                            onClick={() => openModal2(worker.id)}
+                            type="primary"
+                          >
+                            {`Abyom qo'shish`}
                           </Button>
                         </center>
                       </p>
