@@ -1,9 +1,5 @@
 {
-    "rewrites": [
-      {
-        "source": "/api/auth/login",  "destination": "https://crm.mirzobox.uz/api/auth/login"  },
-        {
-          "source": "/api/:path*",  "destination": "https://crm.mirzobox.uz/api/:path*"  }
-    ]
-  }
-  
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
