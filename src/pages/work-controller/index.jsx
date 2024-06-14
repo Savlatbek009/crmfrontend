@@ -416,9 +416,7 @@ const WorkControllerDashboard = () => {
                                         <b>
                                           <b style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             {workPlace.amount - workPlace.earnedMoney < 0 ? "Bizdan qarz" : "Biz qarzmiz"}
-                                            <b style={{
-                                              color: workPlace.amount - workPlace.earnedMoney < 0 ? "red" : "green"
-                                            }}>{(workPlace.amount - workPlace.earnedMoney).toLocaleString()}so`m</b></b>
+                                            <b style={{color: "red"}}>{(workPlace.amount - workPlace.earnedMoney).toLocaleString()}so`m</b></b>
                                         </b>
                                       </div>
                                       {isShow ?
